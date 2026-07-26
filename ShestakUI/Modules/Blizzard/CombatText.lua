@@ -61,6 +61,17 @@ local function SetScroll()
 	end
 end
 
+-- Incoming miss types, toggled by C.combattext.dodge_parry_miss
+local missEvents = {
+	["MISS"] = MISS, ["SPELL_MISS"] = MISS,
+	["DODGE"] = DODGE, ["SPELL_DODGE"] = DODGE,
+	["PARRY"] = PARRY, ["SPELL_PARRY"] = PARRY,
+	["EVADE"] = EVADE, ["SPELL_EVADE"] = EVADE,
+	["IMMUNE"] = IMMUNE, ["SPELL_IMMUNE"] = IMMUNE,
+	["DEFLECT"] = DEFLECT, ["SPELL_DEFLECT"] = DEFLECT,
+	["REFLECT"] = REFLECT, ["SPELL_REFLECT"] = REFLECT,
+}
+
 local r, g, b, lowMana, lowHealth
 
 -- Function, handles everything
@@ -126,20 +137,10 @@ local function OnEvent(_, event, subevent)
 				end
 			elseif subevent == "SPELL_CAST" then
 				xCT3:AddMessage(arg2, 1, 0.82, 0)
-			elseif subevent == "MISS" or subevent == "SPELL_MISS" then
-				xCT1:AddMessage(MISS, 0.5, 0.5, 0.5)
-			elseif subevent == "DODGE" or subevent == "SPELL_DODGE" then
-				xCT1:AddMessage(DODGE, 0.5, 0.5, 0.5)
-			elseif subevent == "PARRY" or subevent == "SPELL_PARRY" then
-				xCT1:AddMessage(PARRY, 0.5, 0.5, 0.5)
-			elseif subevent == "EVADE" or subevent == "SPELL_EVADE" then
-				xCT1:AddMessage(EVADE, 0.5, 0.5, 0.5)
-			elseif subevent == "IMMUNE" or subevent == "SPELL_IMMUNE" then
-				xCT1:AddMessage(IMMUNE, 0.5, 0.5, 0.5)
-			elseif subevent == "DEFLECT" or subevent == "SPELL_DEFLECT" then
-				xCT1:AddMessage(DEFLECT, 0.5, 0.5, 0.5)
-			elseif subevent == "REFLECT" or subevent == "SPELL_REFLECT" then
-				xCT1:AddMessage(REFLECT, 0.5, 0.5, 0.5)
+			elseif missEvents[subevent] then
+				if C.combattext.dodge_parry_miss then
+					xCT1:AddMessage(missEvents[subevent], 0.5, 0.5, 0.5)
+				end
 			elseif subevent == "RESIST" or subevent == "BLOCK" or subevent == "ABSORB" then
 				if arg3 then
 					if C.combattext.short_numbers == true then
@@ -299,8 +300,10 @@ end
 -- Register events
 local xCT = CreateFrame("Frame")
 xCT:RegisterEvent("COMBAT_TEXT_UPDATE")
-xCT:RegisterEvent("UNIT_HEALTH")
-xCT:RegisterEvent("UNIT_MANA")
+if C.combattext.low_health_mana then
+	xCT:RegisterEvent("UNIT_HEALTH")
+	xCT:RegisterEvent("UNIT_MANA")
+end
 if C.combattext.dk_runes and T.class == "DEATHKNIGHT" then
 	xCT:RegisterEvent("RUNE_POWER_UPDATE")
 end
